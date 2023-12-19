@@ -1,3 +1,4 @@
+import { debounce } from "lodash";
 import { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
@@ -9,7 +10,7 @@ const AllUSContacts = () => {
   const navigate = useNavigate();
   //Modal c
   const [showModalC, setShwModalC] = useState(false);
-
+  const [query, setQuery] = useState("");
   const handleClose = () => {
     navigate("/problem-2");
   };
@@ -17,7 +18,7 @@ const AllUSContacts = () => {
   const getContacts = async () => {
     try {
       const response = await fetch(
-        "https://contact.mediusware.com/api/country-contacts/United%20States/"
+        `https://contact.mediusware.com/api/contacts/?search=${query}`
       );
       const data = await response.json();
 
@@ -36,7 +37,14 @@ const AllUSContacts = () => {
     setContactDetails(data);
   };
 
-  console.log(contactDetails);
+  //Handle Query
+  const handleQuery = (e) => {
+    setQuery(e.target.value);
+  };
+
+  const getApiCall = debounce(() => {
+    getContacts();
+  }, 2000);
 
   return (
     <div>
@@ -92,6 +100,21 @@ const AllUSContacts = () => {
                 overflowY: "scroll",
               }}
             >
+              <input
+                type="text"
+                name="query"
+                id=""
+                onChange={(e) => {
+                  handleQuery(e);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    getContacts();
+                  } else {
+                    getApiCall();
+                  }
+                }}
+              />
               <table className="table table-striped ">
                 <thead>
                   <tr>
